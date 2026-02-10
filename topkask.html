@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GSR 2026 – Global Skript Ranking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --bg1:#050712;
+  --bg2:#111827;
+  --panel:#0b1020;
+  --panel-soft:#151a2b;
+  --border:#273549;
+  --text-main:#e5e7eb;
+  --text-muted:#9ca3af;
+  --accent:#4f46e5;
+  --accent-soft:rgba(79,70,229,.18);
+  --danger:#ef4444;
+  --up:#22c55e;
+  --down:#ef4444;
+  --zero:#eab308;
+}
+
+/* GLOBAL BACKGROUND — applied to ALL tabs */
+body{
+  margin:0;
+  padding:24px;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#1f2937 0,var(--bg1) 40%,#020617 100%);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--text-main);
+  display:flex;
+  justify-content:center;
+}
+
+.gsr-root{
+  width:100%;
+  max-width:1150px;
+  background:linear-gradient(145deg,var(--panel) 0,var(--panel-soft) 100%);
+  border-radius:18px;
+  padding:20px 22px 26px;
+  box-shadow:0 0 40px rgba(0,0,0,.55);
+  border:1px solid rgba(148,163,184,.15);
+}
+
+/* HEADER */
+.gsr-header{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.gsr-logo{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.gsr-logo-main{
+  font-weight:800;
+  font-size:1.4rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.gsr-logo-main span.icon{
+  font-size:1.3rem;
+}
+
+.gsr-logo-sub{
+  font-size:.8rem;
+  color:var(--text-muted);
+}
+
+/* NAVIGATION */
+.gsr-nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.gsr-nav-btn{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.9);
+  color:var(--text-main);
+  padding:7px 14px;
+  font-size:.8rem;
+  cursor:pointer;
+  transition:.15s;
+  white-space:nowrap;
+}
+
+.gsr-nav-btn:hover{
+  background:#1e293b;
+}
+
+.gsr-nav-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+
+/* LANGUAGE DROPDOWN — GLOBUS */
+.lang-wrapper{
+  position:relative;
+}
+
+.lang-btn{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 14px;
+  font-size:.8rem;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.9);
+  color:var(--text-main);
+  cursor:pointer;
+  transition:.15s;
+}
+
+.lang-btn:hover{
+  background:#1e293b;
+}
+
+.lang-menu{
+  position:absolute;
+  right:0;
+  top:40px;
+  background:#0f172a;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:6px 0;
+  width:140px;
+  display:none;
+  flex-direction:column;
+  box-shadow:0 0 20px rgba(0,0,0,.45);
+  animation:fadeIn .12s ease-out;
+  z-index:20;
+}
+
+.lang-menu.active{
+  display:flex;
+}
+
+.lang-option{
+  padding:8px 14px;
+  font-size:.85rem;
+  cursor:pointer;
+  transition:.12s;
+}
+
+.lang-option:hover{
+  background:#1e293b;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(-4px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* MAIN */
+.gsr-main{margin-top:10px}
+
+/* TABS */
+.gsr-tab{display:none}
+.gsr-tab-active{display:block}
+
+/* REGION BAR */
+.gsr-region-bar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+#ranking-title{
+  margin:0;
+  font-size:1.2rem;
+}
+
+.gsr-region-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.region-btn{
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(15,23,42,.9);
+  color:var(--text-main);
+  padding:5px 12px;
+  font-size:.78rem;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.region-btn:hover{
+  background:#1e293b;
+}
+
+.region-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+
+/* META */
+.gsr-meta{
+  margin:4px 0 10px;
+  font-size:.78rem;
+  color:var(--text-muted);
+}
+
+/* TABLE */
+.gsr-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.85rem;
+}
+
+.gsr-table thead th{
+  text-align:left;
+  padding:6px 6px;
+  font-size:.72rem;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  border-bottom:1px solid var(--border);
+}
+
+.gsr-table tbody td{
+  padding:8px 6px;
+  border-bottom:1px solid #111827;
+}
+
+.gsr-row-clickable{
+  cursor:pointer;
+  transition:background .12s;
+}
+
+.gsr-row-clickable:hover{
+  background:rgba(15,23,42,.9);
+}
+
+.gsr-rank-arrow{
+  font-size:.7rem;
+  font-weight:700;
+}
+
+.gsr-rank-arrow.up{color:var(--up)}
+.gsr-rank-arrow.down{color:var(--down)}
+.gsr-rank-arrow.zero{color:var(--zero)}
+
+.gsr-name-cell-main{
+  font-weight:600;
+  font-size:.9rem;
+}
+
+.gsr-name-cell-tag{
+  font-size:.72rem;
+  color:var(--text-muted);
+}
+
+.gsr-score-cell{text-align:right;font-weight:600}
+.gsr-rating-cell{text-align:right;font-weight:600;color:#a5b4fc}
+
+.gsr-flag{
+  width:18px;
+  height:12px;
+  object-fit:cover;
+  margin-left:6px;
+  vertical-align:baseline;
+  border-radius:2px;
+  box-shadow:0 0 2px rgba(0,0,0,.6);
+}
+
+/* POLISH HIGHLIGHT */
+.gsr-row-polish{
+  background:var(--accent-soft);
+}
+
+.gsr-row-polish:hover{
+  background:rgba(79,70,229,.28);
+}
+
+/* MODAL */
+.gsr-modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:50;
+}
+
+.gsr-modal-backdrop.active{
+  display:flex;
+}
+
+.gsr-modal{
+  background:#020617;
+  border-radius:14px;
+  padding:16px 18px 14px;
+  width:100%;
+  max-width:380px;
+  box-shadow:0 0 30px rgba(0,0,0,.7);
+  position:relative;
+  border:1px solid rgba(148,163,184,.25);
+}
+
+.gsr-modal-close{
+  position:absolute;
+  top:6px;
+  right:8px;
+  border:none;
+  background:transparent;
+  color:var(--text-muted);
+  font-size:1.1rem;
+  cursor:pointer;
+}
+
+.gsr-modal-header{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.gsr-modal-name{
+  font-weight:700;
+  font-size:1rem;
+}
+
+.gsr-modal-flag{
+  width:22px;
+  height:14px;
+  object-fit:cover;
+  border-radius:2px;
+  box-shadow:0 0 2px rgba(0,0,0,.7);
+}
+
+.gsr-modal-body p{
+  margin:4px 0;
+  font-size:.85rem;
+}
+
+.gsr-modal-body strong{
+  font-weight:600;
+}
+
+.ban-reason{
+  color:var(--danger);
+  font-weight:600;
+}
+.gsr-top1 {
+    background: linear-gradient(90deg, #ffd70033, #ffd70011);
+    font-weight: 600;
+}
+.gsr-top2 {
+    background: linear-gradient(90deg, #c0c0c033, #c0c0c011);
+    font-weight: 600;
+}
+.gsr-top3 {
+    background: linear-gradient(90deg, #cd7f3233, #cd7f3211);
+    font-weight: 600;
+}
+
+.gsr-medal {
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+</style>
+</head>
+
+<body>
+<div class="gsr-root">
+<header class="gsr-header">
+
+  <div class="gsr-logo">
+    <div class="gsr-logo-main">
+      <span class="icon">⚡</span>
+      <span id="txt_gsr_title">GSR 2026</span>
+    </div>
+    <span class="gsr-logo-sub" id="txt_gsr_subtitle">
+      Global Skript Ranking – snapshot from Feb 1, 2026
+    </span>
+  </div>
+
+  <nav class="gsr-nav">
+    <button class="gsr-nav-btn active" data-tab="ranking" id="tab_btn_ranking">Ranking</button>
+    <button class="gsr-nav-btn" data-tab="banned-players" id="tab_btn_banned_players">Banned Players ❌</button>
+    <button class="gsr-nav-btn" data-tab="banned-countries" id="tab_btn_banned_countries">Banned Countries</button>
+    <button class="gsr-nav-btn" data-tab="home" id="tab_btn_home">Home</button>
+  </nav>
+
+  <!-- LANGUAGE DROPDOWN -->
+  <div class="lang-wrapper">
+    <button class="lang-btn" id="lang-btn">
+      🌐 <span id="current-lang-label">English</span> ▼
+    </button>
+
+    <div class="lang-menu" id="lang-menu">
+      <div class="lang-option" data-lang="en">English</div>
+      <div class="lang-option" data-lang="pl">Polski</div>
+    </div>
+  </div>
+
+</header>
+
+<main class="gsr-main">
+
+<!-- RANKING TAB -->
+<section class="gsr-tab" id="tab-ranking">
+  <div class="gsr-region-bar">
+    <h1 id="ranking-title">Ranking – Poland</h1>
+
+    <div class="gsr-region-buttons">
+      <button class="region-btn active" data-region="pl" id="region_pl">Poland</button>
+      <button class="region-btn" data-region="usa" id="region_usa">USA</button>
+      <button class="region-btn" data-region="uk" id="region_uk">UK</button>
+      <button class="region-btn" data-region="eu" id="region_eu">Europe</button>
+      <button class="region-btn" data-region="global" id="region_global">Global</button>
+    </div>
+
+    <!-- ⭐ NOWE POLE DO WPISYWANIA KRAJU ⭐ -->
+    <input 
+      id="region_input" 
+      type="text" 
+      placeholder="Enter country code (pl, us, gb, de...)" 
+      class="gsr-region-input"
+      style="margin-top: 10px; padding: 6px 10px; font-size: 14px; border-radius: 6px; border: 1px solid #444; background:#111; color:white;"
+    />
+  </div>
+
+
+    <p class="gsr-meta" id="ranking-meta">
+      Ranking data updated Feb 1, 2026. Global list includes 125 qualified developers.
+    </p>
+
+    <table class="gsr-table">
+      <thead>
+        <tr>
+          <th id="col_place">Place</th>
+          <th id="col_prev">Previous (dont'work)</th>
+          <th id="col_player">Player</th>
+          <th id="col_role">Role</th>
+          <th id="col_score">Score</th>
+          <th id="col_rating">Rating</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-body"></tbody>
+    </table>
+  </section>
+
+  <!-- BANNED PLAYERS -->
+  <section class="gsr-tab" id="tab-banned-players">
+    <h1 id="title_banned_players">Banned Players ❌</h1>
+    <table class="gsr-table">
+      <thead>
+        <tr>
+          <th id="col_bp_player">Player</th>
+          <th id="col_bp_country">Country</th>
+          <th id="col_bp_reason">Reason</th>
+        </tr>
+      </thead>
+      <tbody id="banned-players-body"></tbody>
+    </table>
+  </section>
+
+  <!-- BANNED COUNTRIES -->
+  <section class="gsr-tab" id="tab-banned-countries">
+    <h1 id="title_banned_countries">Banned Countries</h1>
+    <table class="gsr-table">
+      <thead>
+        <tr>
+          <th id="col_bc_country">Country</th>
+          <th id="col_bc_status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="banned-countries-body"></tbody>
+    </table>
+  </section>
+
+<!-- HOME -->
+<section class="gsr-tab gsr-tab-active" id="tab-home">
+  <h1 id="title_home">Global Script Ranking 2025/2026</h1>
+
+  <p class="gsr-meta">
+    Najbardziej prestiżowy ranking twórców systemów serwerowych, modułów technicznych i skryptów wykorzystywanych w środowiskach sandboxowych.
+  </p>
+
+  <h2>Co oceniamy?</h2>
+  <ul>
+    <li>Jakość i stabilność kodu</li>
+    <li>Złożoność rozwiązań technicznych</li>
+    <li>Innowacyjność i unikalność projektów</li>
+    <li>Wpływ na społeczność i ekosystem</li>
+    <li>Konsekwencja i aktywność twórcza</li>
+  </ul>
+
+  <h2>Jury GSR — polsko‑angielskie</h2>
+  <p>
+    Oceny przygotowuje niezależne jury polsko‑angielskie, składające się z doświadczonych developerów, administratorów dużych projektów oraz specjalistów od wydajności i bezpieczeństwa.
+  </p>
+
+  <h2>Zgłoś się do rankingu</h2>
+  <p>
+    Jeśli tworzysz systemy serwerowe, moduły eventowe, anti‑cheaty, core engine scripts lub optymalizacje wydajności — możesz zgłosić się do kolejnej aktualizacji.
+  </p>
+
+  <p><strong>Discord:</strong> <a href="https://discord.gg/sH8uWfgSVA" target="_blank">https://discord.gg/sH8uWfgSVA</a></p>
+</section>
+
+</main>
+
+<!-- PLAYER MODAL -->
+<div class="gsr-modal-backdrop" id="player-modal-backdrop">
+  <div class="gsr-modal">
+    <button class="gsr-modal-close" id="player-modal-close">×</button>
+
+    <div class="gsr-modal-header">
+      <span class="gsr-modal-name" id="modal-player-name"></span>
+      <img id="modal-player-flag" class="gsr-modal-flag" alt="">
+    </div>
+
+    <div class="gsr-modal-body">
+      <p><strong id="m_country_label">Country:</strong> <span id="modal-player-country"></span></p>
+      <p><strong id="m_global_rank_label">Global Rank:</strong> <span id="modal-player-global-rank"></span></p>
+      <p><strong id="m_global_prev_label">Previous Global:</strong> <span id="modal-player-global-prev"></span></p>
+      <p><strong id="m_global_delta_label">Global Change:</strong> <span id="modal-player-global-delta"></span></p>
+
+      <p><strong id="m_region_rank_label">Region Rank:</strong> <span id="modal-player-region-rank"></span></p>
+      <p><strong id="m_region_prev_label">Previous Region:</strong> <span id="modal-player-region-prev"></span></p>
+      <p><strong id="m_region_delta_label">Region Change:</strong> <span id="modal-player-region-delta"></span></p>
+
+      <p><strong id="m_role_label">Role:</strong> <span id="modal-player-spec"></span></p>
+      <p><strong id="m_score_label">Score:</strong> <span id="modal-player-score"></span></p>
+      <p><strong id="m_rating_label">Rating:</strong> <span id="modal-player-rating"></span></p>
+      <p><strong id="m_rating_delta_label">Rating Change:</strong> <span id="modal-player-rating-delta"></span></p>
+
+      <p><strong id="m_yt_label">YouTube:</strong> <span id="modal-player-yt"></span></p>
+    </div>
+  </div>
+</div>
+<script>
+/* ============================================================
+   LANGUAGE SYSTEM — TRANSLATIONS (EN + PL)
+   Fully modular — add new languages easily
+============================================================ */
+let currentLang = "en";
+
+const translations = {
+  en: {
+    gsr_title: "GSR 2026",
+    gsr_subtitle: "Global Skript Ranking – snapshot from Feb 1, 2026",
+
+    tab_ranking: "Ranking",
+    tab_banned_players: "Banned Players ❌",
+    tab_banned_countries: "Banned Countries",
+    tab_about: "About",
+
+    region_pl: "Poland",
+    region_usa: "USA",
+    region_uk: "UK",
+    region_eu: "Europe",
+    region_global: "Global",
+
+    ranking_title_pl: "Ranking – Poland",
+    ranking_title_usa: "Ranking – USA",
+    ranking_title_uk: "Ranking – UK",
+    ranking_title_eu: "Ranking – Europe",
+    ranking_title_global: "Ranking – Global",
+
+    ranking_meta:
+      "Ranking data updated Feb 1, 2026. Global list includes 125 qualified developers.",
+
+    col_place: "Place",
+    col_prev: "Previous",
+    col_player: "Player",
+    col_role: "Role",
+    col_score: "Score",
+    col_rating: "Rating",
+
+    title_banned_players: "Banned Players ❌",
+    col_bp_player: "Player",
+    col_bp_country: "Country",
+    col_bp_reason: "Reason",
+
+    title_banned_countries: "Banned Countries",
+    col_bc_country: "Country",
+    col_bc_status: "Status",
+
+    title_about: "About GSR 2026",
+    about_text:
+      "Global ranking of server-side script developers – snapshot from Feb 1, 2026.",
+
+    modal_country: "Country:",
+    modal_global_rank: "Global Rank:",
+    modal_global_prev: "Previous Global:",
+    modal_global_delta: "Global Change:",
+    modal_region_rank: "Region Rank:",
+    modal_region_prev: "Previous Region:",
+    modal_region_delta: "Region Change:",
+    modal_role: "Role:",
+    modal_score: "Score:",
+    modal_rating: "Rating:",
+    modal_rating_delta: "Rating Change:",
+    modal_yt: "YouTube:"
+  },
+
+  pl: {
+    gsr_title: "GSR 2026",
+    gsr_subtitle: "Globalny Ranking Skrypciarzy – stan na 1 lutego 2026",
+
+    tab_ranking: "Ranking",
+    tab_banned_players: "Zbanowani ❌",
+    tab_banned_countries: "Zbanowane kraje",
+    tab_about: "O rankingu",
+
+    region_pl: "Polska",
+    region_usa: "USA",
+    region_uk: "UK",
+    region_eu: "Europa",
+    region_global: "Globalnie",
+
+    ranking_title_pl: "Ranking – Polska",
+    ranking_title_usa: "Ranking – USA",
+    ranking_title_uk: "Ranking – UK",
+    ranking_title_eu: "Ranking – Europa",
+    ranking_title_global: "Ranking – Globalnie",
+
+    ranking_meta:
+      "Dane aktualne na 1 lutego 2026. Globalna lista obejmuje 125 zakwalifikowanych twórców.",
+
+    col_place: "Miejsce",
+    col_prev: "Poprzednie",
+    col_player: "Zawodnik",
+    col_role: "Rola",
+    col_score: "Ocena",
+    col_rating: "Ranking",
+
+    title_banned_players: "Zbanowani ❌",
+    col_bp_player: "Zawodnik",
+    col_bp_country: "Kraj",
+    col_bp_reason: "Powód",
+
+    title_banned_countries: "Zbanowane kraje",
+    col_bc_country: "Kraj",
+    col_bc_status: "Status",
+
+    title_about: "O rankingu – GSR 2026",
+    about_text:
+      "Globalny ranking twórców skryptów serwerowych – stan na 1 lutego 2026.",
+
+    modal_country: "Kraj:",
+    modal_global_rank: "Miejsce globalne:",
+    modal_global_prev: "Poprzednie globalne:",
+    modal_global_delta: "Zmiana globalna:",
+    modal_region_rank: "Miejsce w regionie:",
+    modal_region_prev: "Poprzednie w regionie:",
+    modal_region_delta: "Zmiana w regionie:",
+    modal_role: "Rola:",
+    modal_score: "Ocena:",
+    modal_rating: "Ranking:",
+    modal_rating_delta: "Zmiana ratingu:",
+    modal_yt: "YouTube:"
+  }
+};
+
+/* ============================================================
+   APPLY TRANSLATIONS TO UI
+============================================================ */
+function applyTranslations() {
+  const t = translations[currentLang];
+
+  document.getElementById("txt_gsr_title").textContent = t.gsr_title;
+  document.getElementById("txt_gsr_subtitle").textContent = t.gsr_subtitle;
+
+  document.getElementById("tab_btn_ranking").textContent = t.tab_ranking;
+  document.getElementById("tab_btn_banned_players").textContent = t.tab_banned_players;
+  document.getElementById("tab_btn_banned_countries").textContent = t.tab_banned_countries;
+  document.getElementById("tab_btn_about").textContent = t.tab_about;
+
+  document.getElementById("region_pl").textContent = t.region_pl;
+  document.getElementById("region_usa").textContent = t.region_usa;
+  document.getElementById("region_uk").textContent = t.region_uk;
+  document.getElementById("region_eu").textContent = t.region_eu;
+  document.getElementById("region_global").textContent = t.region_global;
+
+  document.getElementById("ranking-meta").textContent = t.ranking_meta;
+
+  document.getElementById("col_place").textContent = t.col_place;
+  document.getElementById("col_prev").textContent = t.col_prev;
+  document.getElementById("col_player").textContent = t.col_player;
+  document.getElementById("col_role").textContent = t.col_role;
+  document.getElementById("col_score").textContent = t.col_score;
+  document.getElementById("col_rating").textContent = t.col_rating;
+
+  document.getElementById("title_banned_players").textContent = t.title_banned_players;
+  document.getElementById("col_bp_player").textContent = t.col_bp_player;
+  document.getElementById("col_bp_country").textContent = t.col_bp_country;
+  document.getElementById("col_bp_reason").textContent = t.col_bp_reason;
+
+  document.getElementById("title_banned_countries").textContent = t.title_banned_countries;
+  document.getElementById("col_bc_country").textContent = t.col_bc_country;
+  document.getElementById("col_bc_status").textContent = t.col_bc_status;
+
+  document.getElementById("title_about").textContent = t.title_about;
+  document.getElementById("about_text").textContent = t.about_text;
+
+  document.getElementById("m_country_label").textContent = t.modal_country;
+  document.getElementById("m_global_rank_label").textContent = t.modal_global_rank;
+  document.getElementById("m_global_prev_label").textContent = t.modal_global_prev;
+  document.getElementById("m_global_delta_label").textContent = t.modal_global_delta;
+  document.getElementById("m_region_rank_label").textContent = t.modal_region_rank;
+  document.getElementById("m_region_prev_label").textContent = t.modal_region_prev;
+  document.getElementById("m_region_delta_label").textContent = t.modal_region_delta;
+  document.getElementById("m_role_label").textContent = t.modal_role;
+  document.getElementById("m_score_label").textContent = t.modal_score;
+  document.getElementById("m_rating_label").textContent = t.modal_rating;
+  document.getElementById("m_rating_delta_label").textContent = t.modal_rating_delta;
+  document.getElementById("m_yt_label").textContent = t.modal_yt;
+
+  document.getElementById("current-lang-label").textContent =
+    currentLang === "en" ? "English" : "Polski";
+}
+
+/* ============================================================
+   LANGUAGE DROPDOWN LOGIC
+============================================================ */
+document.getElementById("lang-btn").onclick = () => {
+  document.getElementById("lang-menu").classList.toggle("active");
+};
+
+document.querySelectorAll(".lang-option").forEach(opt => {
+  opt.onclick = () => {
+    currentLang = opt.dataset.lang;
+    applyTranslations();
+    renderRanking(activeRegion);
+    document.getElementById("lang-menu").classList.remove("active");
+  };
+});
+
+document.getElementById("region_input").addEventListener("input", (e) => {
+    const name = e.target.value.trim().toLowerCase();
+
+    if (name.length < 2) return; // ignorujemy 1 literę
+
+    // znajdź kraj po pełnej nazwie
+    const matchedCountry = Object.keys(regions).find(regionKey => {
+        const players = regions[regionKey];
+        if (!players || players.length === 0) return false;
+
+        // sprawdzamy country name pierwszego gracza
+        return players[0].country.toLowerCase().startsWith(name);
+    });
+
+    if (matchedCountry) {
+        setRegion(matchedCountry);
+
+        // podświetl przycisk jeśli istnieje
+        const btn = document.querySelector(`[data-region="${matchedCountry}"]`);
+        if (btn) {
+            document.querySelectorAll(".region-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        }
+    }
+});
+
+
+
+/* ============================================================
+   FLAG URL
+============================================================ */
+const flagUrl = c => `https://flagcdn.com/16x12/${c}.png`;
+
+/* ============================================================
+   ROLES
+============================================================ */
+const roles = [
+  "Combat Systems","Anti-Exploit Systems","Event Engineering","Server Mechanics",
+  "Performance Tuning","Automation Scripts","Core Engine Scripts","Module Architecture",
+  "Runtime Logic","Utility Modules"
+];
+
+/* ============================================================
+   YOUTUBE CHANNELS
+============================================================ */
+const youtubeChannels = {
+  "xSlodziak":"https://www.youtube.com/@xSlodziaczek",
+  "ishe_":"https://www.youtube.com/@ishe1235"
+};
+
+const players = [
+  ["Liam","USA","us",1891,1,1840,3,"-","-","-","-","-","-",1,1],
+  ["TurboWolf","USA","us",1803,2,1820,2,"-","-","-","-","-","-",2,2],
+  ["KlausDev","Germany","de",1781,3,1795,1,"-","-","-","-","-","-","-","-"],
+  ["HexaStorm","USA","us",1764,4,1740,3,"-","-","-","-","-","-",3,3],
+  ["BavariaCore","Germany","de",1747,5,1730,2,"-","-","-","-","-","-","-","-"],
+  ["NeonSpectre","USA","us",1722,6,1710,4,"-","-","-","-","-","-",4,4],
+  ["BerlinScript","Germany","de",1703,7,1725,3,"-","-","-","-","-","-","-","-"],
+  ["CyberRift","USA","us",1684,8,1660,5,"-","-","-","-","-","-",5,5],
+  ["RheinCoder","Germany","de",1665,9,1630,4,"-","-","-","-","-","-","-","-"],
+  ["DarkNova","USA","us",1649,10,1675,6,"-","-","-","-","-","-",6,6],
+  ["Oliver","UK","gb",1479,11,1450,1,"-","-","-","-",1,1,"-","-"],
+  ["TeaScript","UK","gb",1465,12,1480,2,"-","-","-","-",2,2,"-","-"],
+  ["LondonByte","UK","gb",1451,13,1430,3,"-","-","-","-",3,3,"-","-"],
+  ["FogCoder","UK","gb",1437,14,1410,4,"-","-","-","-",4,4,"-","-"],
+  ["KnightDev","UK","gb",1423,15,1445,5,"-","-","-","-",5,5,"-","-"],
+  ["ParisCore","France","fr",1339,16,1310,1,"-","-","-","-","-","-","-","-"],
+  ["LyonScript","France","fr",1325,17,1345,2,"-","-","-","-","-","-","-","-"],
+  ["RomaScript","Italy","it",1255,18,1230,1,"-","-","-","-","-","-","-","-"],
+  ["MilanoCore","Italy","it",1241,19,1210,2,"-","-","-","-","-","-","-","-"],
+  ["PabloXD","Spain","es",1185,20,1150,1,"-","-","-","-","-","-","-","-"],
+
+  ["Arjun","India","in",945,21,920,1,"-","-","-","-","-","-","-","-"],
+  ["IndCore","India","in",931,22,910,2,"-","-","-","-","-","-","-","-"],
+  ["Li","China","cn",903,23,880,1,"-","-","-","-","-","-","-","-"],
+  ["DragonHunter","China","cn",889,24,870,2,"-","-","-","-","-","-","-","-"],
+  ["Kenji","Japan","jp",875,25,860,1,"-","-","-","-","-","-","-","-"],
+  ["ByteZen","Japan","jp",874,26,860,2,"-","-","-","-","-","-","-","-"],
+  ["SeoulRonin","South Korea","kr",861,27,840,1,"-","-","-","-","-","-","-","-"],
+  ["Carlos","Brazil","br",847,28,830,1,"-","-","-","-","-","-","-","-"],
+  ["SambaByte","Brazil","br",677,29,590,2,"-","-","-","-","-","-","-","-"],
+  ["RioFalcon","Brazil","br",671,30,580,3,"-","-","-","-","-","-","-","-"],
+  ["AmazonRider","Brazil","br",665,31,570,4,"-","-","-","-","-","-","-","-"],
+  ["Yusuf","Turkey","tr",833,32,820,1,"-","-","-","-","-","-","-","-"],
+  ["KarachiNomad","Pakistan","pk",819,33,800,1,"-","-","-","-","-","-","-","-"],
+
+  ["xSlodziak","Poland","pl",1402,34,1380,1,"-","-",1,1,"-","-","-","-"],
+
+  ["SteppeHunter","Kazakhstan","kz",805,35,790,1,"-","-","-","-","-","-","-","-"],
+  ["JakartaRider","Indonesia","id",539,36,520,1,"-","-","-","-","-","-","-","-"],
+  ["SurabayaWolf","Indonesia","id",525,37,510,2,"-","-","-","-","-","-","-","-"],
+  ["BaliRogue","Indonesia","id",511,38,500,3,"-","-","-","-","-","-","-","-"],
+  ["AthensSpartan","Greece","gr",973,39,950,1,"-","-","-","-","-","-","-","-"],
+  ["ThessRanger","Greece","gr",959,40,940,2,"-","-","-","-","-","-","-","-"],
+  ["CapeHunter","South Africa","za",595,41,580,1,"-","-","-","-","-","-","-","-"],
+
+  ["Kormic","Poland","pl",1320,43,1321,2,"-","-",2,2,"-","-","-","-"],
+
+  ["JoburgLion","South Africa","za",581,44,570,2,"-","-","-","-","-","-","-","-"],
+  ["SydneyRogue","Australia","au",567,45,550,1,"-","-","-","-","-","-","-","-"],
+  ["LimaFalcon","Peru","pe",553,46,540,1,"-","-","-","-","-","-","-","-"],
+  ["TelAvivHawk","Israel","il",623,47,610,1,"-","-","-","-","-","-","-","-"],
+  ["NeoByte","Canada","ca",912,48,900,1,"-","-","-","-","-","-","-","-"],
+  ["FrostScript","Canada","ca",899,49,880,2,"-","-","-","-","-","-","-","-"],
+  ["MapleMoose","Canada","ca",887,50,870,3,"-","-","-","-","-","-","-","-"],
+
+  ["natanx22","Poland","pl",1213,51,1191,3,"-","-",3,3,"-","-","-","-"],
+
+  ["KairoFalcon","Egypt","eg",861,52,845,1,"-","-","-","-","-","-","-","-"],
+  ["SaharaScorpion","Egypt","eg",853,53,830,2,"-","-","-","-","-","-","-","-"],
+  ["DesertFalcon","Egypt","eg",842,54,820,3,"-","-","-","-","-","-","-","-"],
+  ["NordicWolf","Sweden","se",831,55,810,1,"-","-","-","-","-","-","-","-"],
+  ["StockholmRider","Sweden","se",822,56,800,2,"-","-","-","-","-","-","-","-"],
+  ["FjordHunter","Norway","no",814,57,795,1,"-","-","-","-","-","-","-","-"],
+  ["OsloRogue","Norway","no",806,58,790,2,"-","-","-","-","-","-","-","-"],
+  ["VikingCore","Norway","no",799,59,780,3,"-","-","-","-","-","-","-","-"],
+  ["PolarByte","Finland","fi",792,60,770,1,"-","-","-","-","-","-","-","-"],
+  ["HelsinkiBlade","Finland","fi",785,61,760,2,"-","-","-","-","-","-","-","-"],
+  ["BalticCoder","Estonia","ee",778,62,750,1,"-","-","-","-","-","-","-","-"],
+  ["RigaShadow","Latvia","lv",771,63,740,1,"-","-","-","-","-","-","-","-"],
+  ["VilniusWolf","Lithuania","lt",764,64,730,1,"-","-","-","-","-","-","-","-"],
+  ["DanubeKnight","Austria","at",758,65,720,1,"-","-","-","-","-","-","-","-"],
+  ["ViennaFalcon","Austria","at",751,66,710,2,"-","-","-","-","-","-","-","-"],
+  ["SwissRanger","Switzerland","ch",744,67,700,1,"-","-","-","-","-","-","-","-"],
+  ["AlpineHunter","Switzerland","ch",738,68,690,2,"-","-","-","-","-","-","-","-"],
+  ["ByteMatter","Switzerland","ch",732,69,680,3,"-","-","-","-","-","-","-","-"],
+  ["SaharaByte","Morocco","ma",726,70,670,1,"-","-","-","-","-","-","-","-"],
+
+  ["ishe_","Poland","pl",1210,71,1204,4,"-","-",4,4,"-","-","-","-"],
+
+  ["AtlasNomad","Morocco","ma",720,72,660,2,"-","-","-","-","-","-","-","-"],
+  ["CasablancaRider","Morocco","ma",714,73,650,3,"-","-","-","-","-","-","-","-"],
+  ["AndesCoder","Chile","cl",708,74,640,1,"-","-","-","-","-","-","-","-"],
+  ["SantiagoWolf","Chile","cl",702,75,630,2,"-","-","-","-","-","-","-","-"],
+  ["PatagoniaBear","Argentina","ar",696,76,620,1,"-","-","-","-","-","-","-","-"],
+  ["CordobaRanger","Argentina","ar",689,77,610,2,"-","-","-","-","-","-","-","-"],
+  ["PampaFalcon","Argentina","ar",683,78,600,3,"-","-","-","-","-","-","-","-"],
+  ["SaharaWind","Algeria","dz",659,79,560,1,"-","-","-","-","-","-","-","-"],
+  ["AlgiersBlade","Algeria","dz",653,80,550,2,"-","-","-","-","-","-","-","-"],
+  ["AtlasWolf","Algeria","dz",647,81,540,3,"-","-","-","-","-","-","-","-"],
+  ["HimalayaRanger","Nepal","np",623,82,500,1,"-","-","-","-","-","-","-","-"],
+  ["KathmanduNomad","Nepal","np",617,83,490,2,"-","-","-","-","-","-","-","-"],
+  ["EverestClimber","Nepal","np",611,84,480,3,"-","-","-","-","-","-","-","-"],
+  ["SiberiaHunter","Russia","ru",605,85,470,1,"-","-","-","-","-","-","-","-"],
+  ["RussianVodka_","Russia","ru",599,86,460,2,"-","-","-","-","-","-","-","-"],
+  ["VolgaBear","Russia","ru",593,87,450,3,"-","-","-","-","-","-","-","-"],
+  ["SavannaByte","Kenya","ke",587,88,440,1,"-","-","-","-","-","-","-","-"],
+
+  ["ComputerManiak588","Poland","pl",860,89,902,5,"-","-",5,4,"-","-","-","-"],
+
+  ["NairobiStriker","Kenya","ke",581,90,430,2,"-","-","-","-","-","-","-","-"],
+  ["SafariHunter","Kenya","ke",575,91,420,3,"-","-","-","-","-","-","-","-"],
+  ["SaharaStorm","Tunisia","tn",569,92,410,1,"-","-","-","-","-","-","-","-"],
+  ["TunisFalcon","Tunisia","tn",563,93,400,2,"-","-","-","-","-","-","-","-"],
+  ["CarthageKnight","Tunisia","tn",557,94,390,3,"-","-","-","-","-","-","-","-"],
+
+  ["VistulaWolf","Poland","pl",371,200,372,6,"-","-",6,6,"-","-","-","-"],
+  ["PierogiWarrior","Poland","pl",300,200,312,7,"-","-",7,7,"-","-","-","-"],
+  ["SarmatianBear","Poland","pl",292,200,247,8,"-","-",8,8,"-","-","-","-"],
+  ["KielbasaKnight","Poland","pl",660,200,651,9,"-","-",9,9,"-","-","-","-"],
+  ["MazoviaHunter","Poland","pl",239,200,243,10,"-","-",10,10,"-","-","-","-"],
+  ["SlavicFalcon","Poland","pl",237,200,256,11,"-","-",11,11,"-","-","-","-"],
+  ["VistulaViking","Poland","pl",231,200,240,12,"-","-",12,12,"-","-","-","-"],
+  ["PolishBoar","Poland","pl",222,200,210,13,"-","-",13,13,"-","-","-","-"],
+  ["BalticKnight","Poland","pl",212,200,211,14,"-","-",14,14,"-","-","-","-"],
+  ["SilesianBear","Poland","pl",203,200,201,15,"-","-",15,15,"-","-","-","-"],
+  ["KrakowFalcon","Poland","pl",201,200,200,16,"-","-",16,16,"-","-","-","-"],
+  ["WarsawRanger","Poland","pl",190,200,202,17,"-","-",17,17,"-","-","-","-"],
+  ["TatryWolf","Poland","pl",178,200,172,18,"-","-",18,18,"-","-","-","-"],
+  ["PodlaskiSmalec","Poland","pl",173,200,181,19,"-","-",19,19,"-","-","-","-"],
+  ["LubelskiRider","Poland","pl",169,200,163,20,"-","-",20,20,"-","-","-","-"],
+  ["PolishNomad","Poland","pl",160,200,160,21,"-","-",21,21,"-","-","-","-"],
+  ["VistulaRider","Poland","pl",155,200,167,22,"-","-",22,22,"-","-","-","-"],
+  ["SlavicRager337","Poland","pl",250,200,262,23,"-","-",23,23,"-","-","-","-"],
+  ["MazuryPieczarki","Poland","pl",449,200,448,24,"-","-",24,24,"-","-","-","-"],
+  ["PolishWolf_","Poland","pl",139,200,102,25,"-","-",25,25,"-","-","-","-"]
+];
+
+
+
+
+
+/* ============================================================
+   CONVERT TO OBJECTS
+============================================================ */
+const fullPlayers = players.map((p, i) => ({
+  name: p[0],
+  rawName: p[0],
+  country: p[1],
+  cc: p[2],
+  rating: p[3],
+  prevRating: p[5] ?? p[3],
+  score: parseFloat((p[3] / 160).toFixed(1)),
+  globalRank: i + 1,
+  prevGlobalRank: p[4],
+  regionRanks: {},
+  prevRegionRanks: {},
+  spec: roles[i % roles.length],
+  tag:
+    p[0] === "xSlodziak" ? "@xSlodziak" :
+    p[0] === "Kormic" ? "@Kormic" :
+    p[0] === "ishe_" ? "@ishe" :
+    p[0] === "natanx22" ? "@natanx22" :
+    "",
+  polish: p[2] === "pl"
+}));
+
+/* ============================================================
+   REGIONS (GLOBAL + PL + USA + UK + EU + AUTO-COUNTRIES)
+============================================================ */
+const regions = { global: [], pl: [], usa: [], uk: [], eu: [] };
+let activeRegion = "pl";
+
+
+
+// ⭐ NOWY OBIEKT NA PEŁNE NAZWY KRAJÓW
+const countryRegions = {};
+
+// ⭐ GENEROWANIE REGIONÓW PO PEŁNEJ NAZWIE
+const allCountries = new Set(fullPlayers.map(p => p.country));
+
+allCountries.forEach(countryName => {
+    const key = countryName.toLowerCase().replace(/\s+/g, "_");
+    countryRegions[key] = fullPlayers.filter(p => p.country === countryName);
+});
+
+
+function buildRegions() {
+  const euCodes = new Set([
+    "pl","gb","de","fr","es","it","nl","se","no","fi","dk","pt","be","at",
+    "hu","cz","sk","ua","lt","lv","ee","gr","mc"
+  ]);
+
+  // GLOBAL
+  const sortedGlobal = fullPlayers.slice().sort((a,b) => b.rating - a.rating);
+  sortedGlobal.forEach((p,i) => {
+    p.globalRank = i+1;
+    p.prevGlobalRank = i+1;
+  });
+  regions.global = sortedGlobal;
+
+  // POLAND — first 30
+  const plList = fullPlayers.filter(p => p.cc === "pl").slice(0,30);
+  plList.forEach((p,i) => {
+    p.regionRanks["pl"] = i+1;
+    p.prevRegionRanks["pl"] = i+1;
+  });
+  regions.pl = plList;
+
+  // GENERIC REGION BUILDER
+  function makeRegion(key, filterFn) {
+    const list = fullPlayers.filter(filterFn);
+    list.forEach((p,i) => {
+      p.regionRanks[key] = i+1;
+      p.prevRegionRanks[key] = i+1;
+    });
+    regions[key] = list;
+  }
+
+  makeRegion("usa", p => p.cc === "us");
+  makeRegion("uk", p => p.cc === "gb");
+  makeRegion("eu", p => euCodes.has(p.cc));
+
+
+  /* ============================================================
+     AUTO-GENERATE COUNTRY REGIONS FOR EVERY COUNTRY
+  ============================================================ */
+  const allCountries = [...new Set(fullPlayers.map(p => p.cc))];
+
+  allCountries.forEach(cc => {
+    const list = fullPlayers
+      .filter(p => p.cc === cc)
+      .sort((a,b) => b.rating - a.rating);
+
+    list.forEach((p,i) => {
+      p.regionRanks[cc] = i+1;
+      p.prevRegionRanks[cc] = i+1;
+    });
+
+    regions[cc] = list;
+  });
+}
+
+buildRegions();
+
+/* ============================================================
+   DELTAS (ARROWS)
+============================================================ */
+function getDelta(now, prev) {
+  const diff = prev - now;
+  if (diff > 0) return { type: "up", text: "↑" + diff };
+  if (diff < 0) return { type: "down", text: "↓" + (-diff) };
+  return { type: "zero", text: "0" };
+}
+
+function getRatingDelta(p) {
+  const diff = p.rating - p.prevRating;
+  if (diff > 0) return { type: "up", text: "+" + diff };
+  if (diff < 0) return { type: "down", text: diff };
+  return { type: "zero", text: "0" };
+}
+
+/* ============================================================
+   RENDER RANKING
+============================================================ */
+function getRankingTitleForRegion(regionKey) {
+  const t = translations[currentLang];
+  switch(regionKey){
+    case "pl": return t.ranking_title_pl;
+    case "usa": return t.ranking_title_usa;
+    case "uk": return t.ranking_title_uk;
+    case "eu": return t.ranking_title_eu;
+    case "global": return t.ranking_title_global;
+    default: return t.ranking_title_global;
+  }
+}
+
+function renderRanking(regionKey) {
+  activeRegion = regionKey;
+  const tbody = document.getElementById("ranking-body");
+  tbody.innerHTML = "";
+
+  let list = regions[regionKey];
+
+  // GLOBAL → tylko TOP 100
+  if (regionKey === "global") {
+      list = list.slice(0, 100);
+  }
+
+  // REGIONY → filtrujemy po regionie
+  if (regionKey !== "global") {
+      list = list.filter(p => p.regionRanks[regionKey] !== undefined);
+  }
+
+  document.getElementById("ranking-title").innerText = getRankingTitleForRegion(regionKey);
+
+  list.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.classList.add("gsr-row-clickable");
+
+    // AKTUALNE MIEJSCE
+    const now = regionKey === "global"
+      ? p.globalRank
+      : p.regionRanks[regionKey];
+
+    // POPRZEDNIE MIEJSCE (POPRAWIONE)
+    const prev = regionKey === "global"
+      ? p.prevGlobalRank
+      : p.prevRegionRanks[regionKey];
+
+    // MEDALE + TOP3 KOLOROWANIE (GLOBAL I LOKALNE)
+    let medal = "";
+    if (now === 1) {
+        tr.classList.add("gsr-top1");
+        medal = `<span class="gsr-medal">🥇</span>`;
+    } else if (now === 2) {
+        tr.classList.add("gsr-top2");
+        medal = `<span class="gsr-medal">🥈</span>`;
+    } else if (now === 3) {
+        tr.classList.add("gsr-top3");
+        medal = `<span class="gsr-medal">🥉</span>`;
+    }
+
+    // POLSKI HIGHLIGHT
+    if ((regionKey === "global" || regionKey === "eu") && p.cc === "pl") {
+      tr.classList.add("gsr-row-polish");
+    }
+
+    // DELTY
+    const delta = getDelta(now, prev);
+    const ratingDelta = getRatingDelta(p);
+    const flagImg = `<img class="gsr-flag" src="${flagUrl(p.cc)}">`;
+
+    // COUNTRY RANK
+    const countryKey = p.cc;
+    const countryRank = p.regionRanks[countryKey] ?? "-";
+    const prevCountryRank = p.prevRegionRanks[countryKey] ?? "-";
+    const countryDelta = getDelta(countryRank, prevCountryRank);
+
+    tr.innerHTML = `
+      <td>${medal}${now}</td>
+      <td>${prev} <span class="gsr-rank-arrow ${delta.type}">${delta.text}</span></td>
+
+      <td>
+        <div class="gsr-name-cell-main">${p.name} ${flagImg}</div>
+        <div class="gsr-name-cell-tag">${p.tag}</div>
+      </td>
+
+      <td>${p.spec}</td>
+      <td class="gsr-score-cell">${p.score}</td>
+
+      <td class="gsr-rating-cell">
+        ${p.rating}
+        <span class="gsr-rank-arrow ${ratingDelta.type}">${ratingDelta.text}</span>
+      </td>
+
+      <td>
+        ${countryRank}
+        <span class="gsr-rank-arrow ${countryDelta.type}">${countryDelta.text}</span>
+      </td>
+    `;
+
+    tr.addEventListener("click", () => openPlayerModal(p, regionKey));
+    tbody.appendChild(tr);
+  });
+}
+
+
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+function openPlayerModal(p, regionKey) {
+  const modal = document.getElementById("player-modal-backdrop");
+
+  document.getElementById("modal-player-name").textContent = p.name;
+  document.getElementById("modal-player-flag").src = flagUrl(p.cc);
+  document.getElementById("modal-player-country").textContent = p.country;
+
+  const now = regionKey === "global" ? p.globalRank : p.regionRanks[regionKey];
+  const prev = regionKey === "global" ? p.prevGlobalRank : p.prevRegionRanks[regionKey];
+  const delta = getDelta(now, prev);
+
+  document.getElementById("modal-player-global-rank").textContent = p.globalRank;
+  document.getElementById("modal-player-global-prev").textContent = p.prevGlobalRank;
+  document.getElementById("modal-player-global-delta").textContent =
+    getDelta(p.globalRank, p.prevGlobalRank).text;
+
+  document.getElementById("modal-player-region-rank").textContent = now;
+  document.getElementById("modal-player-region-prev").textContent = prev;
+  document.getElementById("modal-player-region-delta").textContent = delta.text;
+
+  document.getElementById("modal-player-spec").textContent = p.spec;
+  document.getElementById("modal-player-score").textContent = p.score;
+
+  const ratingDelta = getRatingDelta(p);
+  document.getElementById("modal-player-rating").textContent = p.rating;
+  document.getElementById("modal-player-rating-delta").textContent = ratingDelta.text;
+
+  const yt = youtubeChannels[p.rawName] || null;
+  const ytContainer = document.getElementById("modal-player-yt");
+  ytContainer.innerHTML = yt
+    ? `<a href="${yt}" target="_blank" style="color:#60a5fa">YouTube channel</a>`
+    : `<span style="color:#9ca3af">No channel</span>`;
+
+  modal.classList.add("active");
+}
+
+document.getElementById("player-modal-close").onclick = () =>
+  document.getElementById("player-modal-backdrop").classList.remove("active");
+
+document.getElementById("player-modal-backdrop").onclick = e => {
+  if (e.target.id === "player-modal-backdrop")
+    document.getElementById("player-modal-backdrop").classList.remove("active");
+};
+
+/* ============================================================
+   NAV TABS
+============================================================ */
+document.querySelectorAll(".gsr-nav-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".gsr-nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(".gsr-tab").forEach(t => t.classList.remove("gsr-tab-active"));
+    document.getElementById(`tab-${tab}`).classList.add("gsr-tab-active");
+
+    if (tab === "banned-players") renderBannedPlayers();
+    if (tab === "banned-countries") renderBannedCountries();
+  };
+});
+
+/* ============================================================
+   REGION BUTTONS
+============================================================ */
+document.querySelectorAll(".region-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".region-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const region = btn.dataset.region;
+    renderRanking(region);
+  };
+});
+
+/* ============================================================
+   BANNED PLAYERS
+============================================================ */
+const bannedPlayers = [
+  ["MateoDev","Spain","es","Injecting malicious code"],
+  ["CoreMaster","Germany","de","Manipulating execution environment"],
+  ["SilentCoder","USA","us","Violation of fair-play rules"],
+  ["ByteHunter","France","fr","Attack on competition infrastructure"],
+  ["ZeroLogic","Italy","it","Unauthorized code modifications"]
+];
+
+function renderBannedPlayers() {
+  const tbody = document.getElementById("banned-players-body");
+  tbody.innerHTML = "";
+
+  bannedPlayers.forEach(p => {
+    const flag = `<img class="gsr-flag" src="${flagUrl(p[2])}">`;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p[0]}</td>
+      <td style="display:flex;align-items:center;gap:8px;">
+        ${flag}
+        <span>${p[1]}</span>
+      </td>
+      <td class="ban-reason">${p[3]}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   BANNED COUNTRIES (EXTENDED)
+============================================================ */
+const bannedCountries = [
+  ["North Korea","Total ban","kp"],
+  ["Iran","Tournament restrictions","ir"],
+  ["Syria","Participation suspended","sy"],
+  ["Russia","Participation suspended – international aggression","ru"],
+  ["Turkmenistan","Strict regime – not compliant with GSR rules","tm"],
+  ["Belarus","Suspended – co‑aggression involvement","by"],
+  ["Afghanistan","Unable to verify participants","af"],
+  ["Eritrea","Strict regime – lack of transparency","er"]
+];
+
+function renderBannedCountries() {
+  const tbody = document.getElementById("banned-countries-body");
+  tbody.innerHTML = "";
+
+  bannedCountries.forEach(c => {
+    const flag = `<img class="gsr-flag" src="${flagUrl(c[2])}">`;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="display:flex;align-items:center;gap:8px;">
+        ${flag}
+        <span>${c[0]}</span>
+      </td>
+      <td class="ban-reason">${c[1]}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   INITIALIZE
+============================================================ */
+applyTranslations();
+renderRanking("pl");
+</script>
+</body>
+</html>
